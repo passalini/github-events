@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  hook_type: Repository
+  name: hook 1
+  active: true
+  url: MyString
+  external_id: 1
+
+two:
+  hook_type: Repository
+  name: hook 2
+  active: false
+  url: MyString
+  external_id: 2

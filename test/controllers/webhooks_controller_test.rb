@@ -16,4 +16,17 @@ class WebhooksControllerTest < ActionController::TestCase
 
     assert_response :success
   end
+
+  test '#POST create with ping event' do
+    request.accept = Mime[:json]
+
+    assert_changes('Hook.count', 1) do
+      post :create, params: load_data('github_ping.json')
+      assert_response :success
+    end
+
+    assert json_body['active']
+    assert_equal 'web', json_body['name']
+    assert_equal 109948940, json_body['external_id']
+  end
 end
