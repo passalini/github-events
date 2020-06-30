@@ -28,6 +28,7 @@ class WebhooksControllerTest < ActionController::TestCase
   class ApiTest < WebhooksControllerTest
     setup do
       request.accept = Mime[:json]
+      @user = users(:one)
     end
 
     test '#POST create with ping event without token' do
@@ -47,9 +48,8 @@ class WebhooksControllerTest < ActionController::TestCase
     end
 
     test '#POST create with ping event' do
-      user    = users(:one)
       @request.headers['HTTP_X_GITHUB_EVENT'] = 'ping'
-      @request.headers['HTTP_X_HUB_SIGNATURE'] = user.secret_token
+      @request.headers['HTTP_X_HUB_SIGNATURE'] = @user.secret_token
 
       assert_difference 'Event.count', 2 do
         assert_difference 'Repository.count', 1 do
@@ -65,6 +65,18 @@ class WebhooksControllerTest < ActionController::TestCase
       assert_equal 186853261, json_body['external_id']
       assert_equal 'Octocoders/Hello-World', json_body['full_name']
       assert_equal 'https://github.com/Octocoders/Hello-World', json_body['html_url']
+    end
+
+    test '#POST create with issue event' do
+      @request.headers['HTTP_X_GITHUB_EVENT'] = 'issues'
+      @request.headers['HTTP_X_HUB_SIGNATURE'] = @user.secret_token
+
+      assert_difference 'IssueEvent.count', 1 do
+        assert_difference 'Repository.count', 1 do
+          post :create, params: load_data('issue_event.json')
+          assert_response :success
+        end
+      end
     end
   end
 end

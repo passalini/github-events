@@ -42,6 +42,15 @@ class WebhooksController < ApplicationController
   end
 
   def event_params
-    { kind: request.env['HTTP_X_GITHUB_EVENT'], payload: params.permit! }
+    attrs = { kind: request.env['HTTP_X_GITHUB_EVENT'], payload: params.permit!.to_h }
+
+    if attrs[:kind] == "issues"
+      attrs.merge!({
+        external_id: params.fetch(:issue, {}).fetch(:id, nil),
+        type: 'IssueEvent'
+      })
+    end
+
+    attrs
   end
 end

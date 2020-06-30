@@ -6,5 +6,5 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.{rb,yml,html,erb}]
+[*.{rb,yml,html,erb,json}]
 indent_size = 2
