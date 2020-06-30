@@ -1,13 +1,20 @@
 <h1>Webhooks</h1>
 
-Github secret token: <span id="secret-token"><%= @secret_token %></span>
+<p>Github Payload URL: <%= webhooks_url %></p>
+<p>Github secret token: <span id="secret-token"><%= @secret_token %></span></p>
 
-<% @hooks.each do |hook| %>
-  <div id="hook-<%= hook.id %>">
-    ID: <%= hook.external_id %>
-    Name: <%= hook.name %>
-    Hook_type: <%= hook.hook_type %>
-    Url: <%= hook.url %>
-    Active: <%= hook.active %>
-  </div>
+<% if @hooks.exists? %>
+  Configured Hooks:
+
+  <% @hooks.each do |hook| %>
+    <div id="hook-<%= hook.id %>">
+      ID: <%= hook.external_id %>
+      Name: <%= hook.name %>
+      Hook_type: <%= hook.hook_type %>
+      Url: <%= hook.url %>
+      Active: <%= hook.active %>
+    </div>
+  <% end %>
+<% else %>
+  You do not have configured hooks
 <% end %>
