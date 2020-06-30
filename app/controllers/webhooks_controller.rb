@@ -1,10 +1,12 @@
 class WebhooksController < ApplicationController
   respond_to :html, :json
+  before_action :verify_token!, only: :create
   before_action :authenticate_user!, only: :index
   skip_before_action :verify_authenticity_token, only: :create
 
   def index
     @hooks = Hook.all
+    @secret_token = current_user.secret_token
   end
 
   def create
@@ -27,5 +29,16 @@ class WebhooksController < ApplicationController
 
   def ping_request?
     params.include?(:zen)
+  end
+
+  def verify_token!
+    secret_token = request.env['HTTP_X_HUB_SIGNATURE']
+
+    if secret_token
+      email = Base64.decode64(secret_token)
+      user = User.try(:find_by, email: email) if email.match(URI::MailTo::EMAIL_REGEXP)
+    end
+
+    render json: 'Bad credentials', status: :unauthorized if secret_token.blank? || user.blank?
   end
 end

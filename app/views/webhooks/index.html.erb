@@ -1,4 +1,6 @@
-<h1>Webhooks#index</h1>
+<h1>Webhooks</h1>
+
+Github secret token: <span id="secret-token"><%= @secret_token %></span>
 
 <% @hooks.each do |hook| %>
   <div id="hook-<%= hook.id %>">
