@@ -1,35 +1,22 @@
 class WebhooksController < ApplicationController
   respond_to :html, :json
+
   before_action :verify_token!, only: :create
   before_action :authenticate_user!, only: :index
   skip_before_action :verify_authenticity_token, only: :create
 
   def index
-    @hooks = Hook.all
+    @repositories = Repository.all
     @secret_token = current_user.secret_token
   end
 
   def create
-    if ping_request?
-      hook = Hook.find_or_initialize_by(external_id: ping_params.delete(:id))
-      hook.assign_attributes(ping_params)
-      hook.save!
-
-      render json: hook
-    end
+    set_repository!
+    @repository.events.create!(event_params)
+    render json: @repository
   end
 
   private
-
-  def ping_params
-    permitted = params.require(:hook).permit(:type, :name, :active, :url, :id)
-    permitted[:hook_type] = permitted.delete(:type)
-    permitted
-  end
-
-  def ping_request?
-    params.include?(:zen)
-  end
 
   def verify_token!
     secret_token = request.env['HTTP_X_HUB_SIGNATURE']
@@ -40,5 +27,21 @@ class WebhooksController < ApplicationController
     end
 
     render json: 'Bad credentials', status: :unauthorized if secret_token.blank? || user.blank?
+  end
+
+  def set_repository!
+    @repository = Repository.find_or_initialize_by(external_id: repository_params.delete(:id))
+    return unless @repository.new_record?
+
+    @repository.assign_attributes(repository_params)
+    @repository.save
+  end
+
+  def repository_params
+    params.require(:repository).permit(:id, :full_name, :description, :html_url)
+  end
+
+  def event_params
+    { kind: request.env['HTTP_X_GITHUB_EVENT'], payload: params.permit! }
   end
 end

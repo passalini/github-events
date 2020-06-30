@@ -10,10 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_29_203450) do
+ActiveRecord::Schema.define(version: 2020_06_30_192519) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "events", force: :cascade do |t|
+    t.bigint "repository_id", null: false
+    t.string "payload"
+    t.string "kind"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["repository_id"], name: "index_events_on_repository_id"
+  end
 
   create_table "hooks", force: :cascade do |t|
     t.string "hook_type"
@@ -21,6 +30,15 @@ ActiveRecord::Schema.define(version: 2020_06_29_203450) do
     t.boolean "active"
     t.string "url"
     t.integer "external_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "repositories", force: :cascade do |t|
+    t.integer "external_id"
+    t.string "full_name"
+    t.text "description"
+    t.string "html_url"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -37,4 +55,5 @@ ActiveRecord::Schema.define(version: 2020_06_29_203450) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "events", "repositories"
 end

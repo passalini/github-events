@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  external_id: 1
+  full_name: passalini/librarybot
+  html_url: https://github.com/passalini/librarybot
+
+two:
+  external_id: 275908291
+  full_name: passalini/github-events
+  html_url: https://github.com/passalini/github-events

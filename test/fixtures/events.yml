@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  repository: one
+  payload: MyString
+  kind: ping
+
+two:
+  repository: two
+  payload: MyString
+  kind: issues

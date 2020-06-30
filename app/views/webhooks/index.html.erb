@@ -3,16 +3,18 @@
 <p>Github Payload URL: <%= webhooks_url %></p>
 <p>Github secret token: <span id="secret-token"><%= @secret_token %></span></p>
 
-<% if @hooks.exists? %>
-  Configured Hooks:
+<% if @repositories.exists? %>
+  <h2> Configured Hooks for: </h2>
 
-  <% @hooks.each do |hook| %>
-    <div id="hook-<%= hook.id %>">
-      ID: <%= hook.external_id %>
-      Name: <%= hook.name %>
-      Hook_type: <%= hook.hook_type %>
-      Url: <%= hook.url %>
-      Active: <%= hook.active %>
+  <% @repositories.each do |repository| %>
+    <br>
+    <div id="repository-<%= repository.id %>">
+      <div>Github ID: <%= repository.external_id %></div>
+      <div>Repository: <%= repository.full_name %></div>
+      <% if repository.description %>
+        <div>Description: <%= repository.description %></div>
+      <% end %>
+      <div>Url: <%= link_to repository.html_url, repository.html_url %></div>
     </div>
   <% end %>
 <% else %>
