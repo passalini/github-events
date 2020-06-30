@@ -4,8 +4,6 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  has_many :hooks
-
   def secret_token
     Base64.urlsafe_encode64(email)
   end

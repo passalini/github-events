@@ -6,7 +6,6 @@ one:
   active: true
   url: MyString
   external_id: 1
-  user: one
 
 two:
   hook_type: Repository
@@ -14,4 +13,3 @@ two:
   active: false
   url: MyString
   external_id: 2
-  user: two

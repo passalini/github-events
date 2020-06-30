@@ -5,13 +5,13 @@ class WebhooksController < ApplicationController
   skip_before_action :verify_authenticity_token, only: :create
 
   def index
-    @hooks = current_user.hooks
+    @hooks = Hook.all
     @secret_token = current_user.secret_token
   end
 
   def create
     if ping_request?
-      hook = current_user.hooks.find_or_initialize_by(external_id: ping_params.delete(:id))
+      hook = Hook.find_or_initialize_by(external_id: ping_params.delete(:id))
       hook.assign_attributes(ping_params)
       hook.save!
 
@@ -36,9 +36,9 @@ class WebhooksController < ApplicationController
 
     if secret_token
       email = Base64.decode64(secret_token)
-      @current_user = User.try(:find_by, email: email) if email.match(URI::MailTo::EMAIL_REGEXP)
+      user = User.try(:find_by, email: email) if email.match(URI::MailTo::EMAIL_REGEXP)
     end
 
-    render json: 'Bad credentials', status: :unauthorized if secret_token.blank? || current_user.blank?
+    render json: 'Bad credentials', status: :unauthorized if secret_token.blank? || user.blank?
   end
 end
