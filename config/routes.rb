@@ -3,4 +3,7 @@ Rails.application.routes.draw do
   root to: "webhooks#index"
 
   resources :webhooks, only: [:create, :index, :show]
+  resources :issues, only: [] do
+    resources :events, only: :index
+  end
 end
