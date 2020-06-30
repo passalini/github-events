@@ -21,7 +21,7 @@ class WebhooksControllerTest < ActionController::TestCase
       assert_response :success
       assert_select "#secret-token", count: 1, text: user.secret_token
       assert_select "#hook-#{hook_1.id}", count: 1
-      assert_select "#hook-#{hook_2.id}", count: 1
+      assert_select "#hook-#{hook_2.id}", count: 0
     end
   end
 
