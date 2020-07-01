@@ -1,13 +1,13 @@
 class WebhooksController < ApplicationController
   respond_to :html, :json
 
-  before_action :verify_token!, only: :create
+  before_action :verify_signature!, only: :create
   before_action :authenticate_user!, only: :index
   skip_before_action :verify_authenticity_token, only: :create
 
   def index
     @repositories = Repository.all
-    @secret_token = current_user.secret_token
+    @secret_token = ENV['SECRET_TOKEN']
   end
 
   def create
@@ -18,16 +18,20 @@ class WebhooksController < ApplicationController
 
   private
 
-  def verify_token!
-    secret_token = request.env['HTTP_X_HUB_SIGNATURE']
-
-    if secret_token
-      email = Base64.decode64(secret_token)
-      user = User.try(:find_by, email: email) if email.match(URI::MailTo::EMAIL_REGEXP)
-    end
-
-    render json: 'Bad credentials', status: :unauthorized if secret_token.blank? || user.blank?
+  def verify_signature!
+    github_signature = request.env['HTTP_X_HUB_SIGNATURE']
+    render json: 'Bad signature', status: :unauthorized if github_signature.blank? || !validate_signature(github_signature)
   end
+
+  def validate_signature(github_signature)
+    return unless ENV['SECRET_TOKEN']
+
+    request.body.rewind
+    payload_body = request.body.read
+    signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), ENV['SECRET_TOKEN'], payload_body)
+    Rack::Utils.secure_compare(signature, github_signature)
+  end
+
 
   def set_repository!
     @repository = Repository.find_or_initialize_by(external_id: repository_params.delete(:id))

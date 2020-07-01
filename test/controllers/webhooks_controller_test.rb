@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class WebhooksControllerTest < ActionController::TestCase
+  setup { ENV['SECRET_TOKEN'] = 'TEST' }
+
   class UserVisualizationTest < WebhooksControllerTest
     test '#GET index for unlogged user' do
       get :index
@@ -19,7 +21,7 @@ class WebhooksControllerTest < ActionController::TestCase
       get :index
 
       assert_response :success
-      assert_select "#secret-token", count: 1, text: user.secret_token
+      assert_select "#secret-token", count: 1, text: 'TEST'
       assert_select "#repository-#{repository_1.id}", count: 1
       assert_select "#repository-#{repository_2.id}", count: 1
     end
@@ -47,17 +49,18 @@ class WebhooksControllerTest < ActionController::TestCase
       end
     end
 
-    test '#POST create with ping event' do
+    test '#POST create with ping event with valid token' do
+      ping_payload = load_data('github_ping.json')
       @request.headers['HTTP_X_GITHUB_EVENT'] = 'ping'
-      @request.headers['HTTP_X_HUB_SIGNATURE'] = @user.secret_token
+      @request.headers['HTTP_X_HUB_SIGNATURE'] = build_signature_for(ping_payload)
 
       assert_difference 'Event.count', 2 do
         assert_difference 'Repository.count', 1 do
-          post :create, params: load_data('github_ping.json')
+          post :create, params: ping_payload
           assert_response :success
 
           # The second request is made to make sure to not duplicate the repository
-          post :create, params: load_data('github_ping.json')
+          post :create, params: ping_payload
           assert_response :success
         end
       end
@@ -67,16 +70,23 @@ class WebhooksControllerTest < ActionController::TestCase
       assert_equal 'https://github.com/Octocoders/Hello-World', json_body['html_url']
     end
 
-    test '#POST create with issue event' do
+    test '#POST create with issue event with valid token' do
+      payload = load_data('issue_event.json')
       @request.headers['HTTP_X_GITHUB_EVENT'] = 'issues'
-      @request.headers['HTTP_X_HUB_SIGNATURE'] = @user.secret_token
+      @request.headers['HTTP_X_HUB_SIGNATURE'] = build_signature_for(payload)
 
       assert_difference 'IssueEvent.count', 1 do
         assert_difference 'Repository.count', 1 do
-          post :create, params: load_data('issue_event.json')
+          post :create, params: payload
           assert_response :success
         end
       end
+    end
+
+    private
+
+    def build_signature_for(body)
+      'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), ENV['SECRET_TOKEN'], body.to_param)
     end
   end
 end
