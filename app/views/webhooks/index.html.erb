@@ -1,6 +1,6 @@
 <h1>Webhooks</h1>
 
-<p>Github Payload URL: <%= webhooks_url %></p>
+<p>Github Payload URL: <span id="hook-url"><%= events_url %></span></p>
 <p>Github secret token: <span id="secret-token"><%= @secret_token %></span></p>
 
 <% if @repositories.exists? %>
