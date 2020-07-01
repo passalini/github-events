@@ -12,6 +12,7 @@ To run this project on your machine you only need to follow those steps:
 5. Run `rake db:migrate`
 6. Run `ngrok http 3000`. It will build the url to use at the next step.
 7. Run `SECRET_TOKEN=ANY-TOKEN NGROK_URL=NGROK-URL rails s`
+8. Run `rails db:fixtures:load`. This is step is **optional**. It will populate the db with some seed data. You can use some of the [users](https://github.com/passalini/github-events/blob/master/test/fixtures/users.yml) to sign in.
 
 The project index will show all repositories created by events triggered by Github and some settings to configure the webhooks at Github.
 
