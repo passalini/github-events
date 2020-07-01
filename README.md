@@ -21,7 +21,7 @@ All tests were made with Rails native suite test, to run it you need to use this
 
 `rails test`
 
-#API
+# API
 
 It only have two endpoints:
 
